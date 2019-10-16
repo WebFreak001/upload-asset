@@ -48,6 +48,7 @@ async function run() {
 		process.env.GITHUB_TOKEN = ""; // let's blank this just in case
 
 		const name = pattern ? formatPattern(pattern, process.env) : file;
+		core.info("Uploading asset as " + name);
 
 		const ret = await uploadAsset(github, url, file, name, mime);
 
