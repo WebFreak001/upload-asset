@@ -1,0 +1,26 @@
+name: 'Upload Asset'
+description: 'Upload an asset to the current GitHub release in a GitHub Actions CI environment.'
+author: 'WebFreak001'
+
+branding:
+  icon: 'upload-cloud'
+  color: 'green'
+
+inputs:
+  file:
+    description: 'Input file path to upload'
+    required: true
+  mime:
+    description: 'The mime type of the file'
+    required: true
+  pattern:
+    description: 'Pattern to name file as on the upload with variable expansion supporting environment variables'
+    required: false
+
+output:
+  url:
+    description: 'GitHub asset URL'
+
+runs:
+  using: 'node12'
+  main: 'index.js'
