@@ -31,7 +31,7 @@ async function run() {
 
 		const file = core.getInput("file", { required: true });
 		const mime = core.getInput("mime", { required: true });
-		const pattern = core.getInput("pattern", { required: false });
+		const pattern = core.getInput("name", { required: false });
 
 		const github = new GitHub(process.env.GITHUB_TOKEN);
 

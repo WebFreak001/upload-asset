@@ -13,7 +13,7 @@ inputs:
   mime:
     description: 'The mime type of the file'
     required: true
-  pattern:
+  name:
     description: 'Pattern to name file as on the upload with variable expansion supporting environment variables'
     required: false
 
