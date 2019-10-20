@@ -1,5 +1,5 @@
-name: 'Upload Asset'
-description: 'Upload an asset to the current GitHub release in a GitHub Actions CI environment.'
+name: 'Upload Asset with Pattern'
+description: 'Upload an asset to the current GitHub release in a GitHub Actions CI environment on any OS.'
 author: 'WebFreak001'
 
 branding:
