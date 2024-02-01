@@ -78,34 +78,29 @@ function formatPattern(pattern, variables) {
 		const match = ret.substring(variable + 2, end);
 		const value = formatVariable(match, variables);
 		start = variable + value.length;
-		ret = ret.substr(0, variable) + value + ret.substr(end + 1);
+		ret = ret.substring(0, variable) + value + ret.substring(end + 1);
 	}
 	return ret;
 }
 
 function formatVariable(match, variables) {
-	let value = variables[match];
+	let parts = /(.*?)(?::(\d+)?(?::(\d+))?)?$/.exec(match);
+	if (!parts)
+		return "";
+	let value = variables[parts[1]];
 
 	if (value) {
+		let start = parseInt(parts[2]);
+		let end = parseInt(parts[3]);
 		value = value.toString();
-		let subStart = match.indexOf(':');
-		if (subStart != -1) {
-			let subEnd = match.indexOf(':', subStart + 1);
-			if (subEnd != -1) {
-				let subStartStr = match.substring(subStart + 1, subEnd);
-				let subStartIndex = subStartStr ? parseInt(subStartStr) : 0;
-				let subEndStr = match.substring(subEnd + 1);
-				let subEndIndex = subEndStr ? parseInt(subEndStr) : value.length;
-				value = value.substring(subStartIndex, subEndIndex);
-			} else {
-				value = value.substr(parseInt(match.substr(subStart + 1)) || 0);
-			}
-		}
+		if (!isNaN(end))
+			value = value.substring(0, end);
+		if (!isNaN(start))
+			value = value.substring(start);
+		return value;
 	} else {
-		value = '';
+		return "";
 	}
-
-	return value;
 }
 
 function pad2(v) {
@@ -114,4 +109,12 @@ function pad2(v) {
 	return v;
 }
 
-run();
+if (process.argv.length > 2 && process.argv[2] == "--self-unittests") {
+	// simple unittests - don't want a whole framework here for a single tested function
+	const assert = require("assert");
+	assert.equal(formatPattern("this-release-${VARIABLE::5}.txt", {
+		"VARIABLE": "works-not-as-expected"
+	}), "this-release-works.txt");
+} else {
+	run();
+}
