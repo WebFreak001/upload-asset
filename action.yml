@@ -22,5 +22,5 @@ output:
     description: 'GitHub asset URL'
 
 runs:
-  using: 'node12'
+  using: 'node20'
   main: 'index.js'
