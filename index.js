@@ -1,29 +1,18 @@
+/// @ts-check
+
 /**
  * This file is licensed under the MIT License.
  */
 
 const core = require("@actions/core");
-const { GitHub } = require("@actions/github");
 const fs = require("fs");
-
-async function uploadAsset(github, url, file, name, mime) {
-	const contentLength = filePath => fs.statSync(filePath).size;
-
-	const headers = { 'content-type': mime, 'content-length': contentLength(file) };
-
-	const uploadAssetResponse = await github.repos.uploadReleaseAsset({
-		url,
-		headers,
-		name,
-		file: fs.readFileSync(file)
-	});
-
-	return uploadAssetResponse.data.browser_download_url;
-}
+const { Octokit } = require("@octokit/core");
 
 async function run() {
 	try {
-		let event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH));
+		if (!process.env.GITHUB_EVENT_PATH)
+			throw new Error("GITHUB_EVENT_PATH unset, ensure the action is running from a release event");
+		let event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH).toString());
 		if (!event || !event.release) {
 			core.setFailed("This is not a release event");
 			return;
@@ -33,7 +22,9 @@ async function run() {
 		const mime = core.getInput("mime", { required: true });
 		const pattern = core.getInput("name", { required: false });
 
-		const github = new GitHub(process.env.GITHUB_TOKEN);
+		if (!process.env.GITHUB_TOKEN)
+			throw new Error("missing GITHUB_TOKEN in environment variables");
+		const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
 		const url = event.release.upload_url;
 
@@ -50,7 +41,22 @@ async function run() {
 		const name = pattern ? formatPattern(pattern, process.env) : file;
 		core.info("Uploading asset as " + name);
 
-		const ret = await uploadAsset(github, url, file, name, mime);
+		async function uploadAsset(url, file, name, mime) {
+			let data = fs.readFileSync(file);
+
+			const headers = {
+				"X-GitHub-Api-Version": "2022-11-28",
+				"Content-Type": mime,
+				"Content-Length": "" + data.length
+			};
+
+			const uploadAssetResponse = await octokit.request(
+				"POST " + url, { headers, name, data });
+
+			return uploadAssetResponse.data.browser_download_url;
+		}
+
+		const ret = await uploadAsset(url, file, name, mime);
 
 		core.setOutput("url", ret);
 	} catch (error) {

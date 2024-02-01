@@ -1,0 +1,21 @@
+name: Test the action
+on:
+  release:
+    types: [published]
+
+jobs:
+  test-upload:
+    name: Test dummy upload
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Upload dummy file
+        uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+          VARIABLE: works-not-as-expected
+        with:
+          file: .github/this-release-works.txt # path to archive to upload
+          mime: plain/text # required by GitHub API
+          name: 'this-release-${VARIABLE::5}.txt' # name pattern to upload the release as
