@@ -23,7 +23,7 @@ jobs:
 
       - name: Deploy Windows release
         if: matrix.os == 'windows-latest'
-        uses: WebFreak001/upload-asset@v1.0.0
+        uses: WebFreak001/upload-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
           OS: windows # just a variable we use in the name pattern
